@@ -52,7 +52,7 @@ public class AzureSpeechRecognitionPlugin() : FlutterPlugin, Activity(), MethodC
 
         Log.i("AzureSpeechRecognitionPlugin", "createMicrophoneStream");
         try {
-            val recordFilePath = "" + flutterPluginBinding!!.applicationContext.cacheDir.absolutePath + "/" + randomID() + ".wav";
+            val recordFilePath = "" + flutterPluginBinding!!.applicationContext.filesDir.absolutePath + "/" + randomID() + ".wav";
             Log.i("AzureSpeechRecognitionPlugin", "recordFilePath: $recordFilePath");
             microphoneStream = MicrophoneStream(recording = recording, recordFilePath=recordFilePath);
         } catch (e: Exception) {
