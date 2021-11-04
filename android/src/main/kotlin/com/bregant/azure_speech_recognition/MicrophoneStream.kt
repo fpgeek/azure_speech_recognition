@@ -61,7 +61,7 @@ class MicrophoneStream(
             .setChannelMask(AudioFormat.CHANNEL_IN_MONO)
             .build();
         this.recorder = AudioRecord.Builder()
-            .setAudioSource(MediaRecorder.AudioSource.VOICE_RECOGNITION)
+            .setAudioSource(MediaRecorder.AudioSource.MIC)
             .setAudioFormat(af)
             .build();
         if (this.recording && this.recordFilePath != null) {
