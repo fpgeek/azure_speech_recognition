@@ -21,6 +21,7 @@ class AzureSpeechRecognition {
   static String? _subKey;
   static String? _region;
   static String _lang = "en-EN";
+  static bool _recording = false;
   static String? _languageUnderstandingSubscriptionKey;
   static String? _languageUnderstandingServiceRegion;
   static String? _languageUnderstandingAppId;
@@ -28,21 +29,23 @@ class AzureSpeechRecognition {
   /// default intitializer for almost every type except for the intent recognizer.
   /// Default language -> English
   AzureSpeechRecognition.initialize(String subKey, String region,
-      {String? lang}) {
+      {String? lang, bool? recording}) {
     _subKey = subKey;
     _region = region;
     if (lang != null) _lang = lang;
+    if (recording != null) _recording = recording;
   }
 
   /// initializer for intent purpose
   /// Default language -> English
   AzureSpeechRecognition.initializeLanguageUnderstading(
       String subKey, String region, String appId,
-      {lang}) {
+      {String? lang, bool? recording}) {
     _languageUnderstandingSubscriptionKey = subKey;
     _languageUnderstandingServiceRegion = region;
     _languageUnderstandingAppId = appId;
     if (lang != null) _lang = lang;
+    if (recording != null) _recording = recording;
   }
 
   late StringResultHandler exceptionHandler;
@@ -50,7 +53,7 @@ class AzureSpeechRecognition {
   late StringResultHandler finalTranscriptionHandler;
   late VoidCallback recognitionStartedHandler;
   late VoidCallback startRecognitionHandler;
-  late VoidCallback recognitionStoppedHandler;
+  late StringResultHandler recognitionStoppedHandler;
 
   Future _platformCallHandler(MethodCall call) async {
     switch (call.method) {
@@ -67,7 +70,7 @@ class AzureSpeechRecognition {
         startRecognitionHandler();
         break;
       case "speech.onRecognitionStopped":
-        recognitionStoppedHandler();
+        recognitionStoppedHandler(call.arguments);
         break;
       case "speech.onException":
         exceptionHandler(call.arguments);
@@ -98,7 +101,7 @@ class AzureSpeechRecognition {
       startRecognitionHandler = handler;
 
   /// only for continuosly
-  void setRecognitionStoppedHandler(VoidCallback handler) =>
+  void setRecognitionStoppedHandler(StringResultHandler handler) =>
       recognitionStoppedHandler = handler;
 
   /// Simple voice Recognition, the result will be sent only at the end.
@@ -106,8 +109,12 @@ class AzureSpeechRecognition {
 
   static simpleVoiceRecognition() {
     if ((_subKey != null && _region != null)) {
-      _channel.invokeMethod('simpleVoice',
-          {'language': _lang, 'subscriptionKey': _subKey, 'region': _region});
+      _channel.invokeMethod('simpleVoice', {
+        'language': _lang,
+        'subscriptionKey': _subKey,
+        'region': _region,
+        'recording': _recording,
+      });
     } else {
       throw "Error: SpeechRecognitionParameters not initialized correctly";
     }
@@ -118,8 +125,12 @@ class AzureSpeechRecognition {
 
   static micStream() {
     if ((_subKey != null && _region != null)) {
-      _channel.invokeMethod('micStream',
-          {'language': _lang, 'subscriptionKey': _subKey, 'region': _region});
+      _channel.invokeMethod('micStream', {
+        'language': _lang,
+        'subscriptionKey': _subKey,
+        'region': _region,
+        'recording': _recording,
+      });
     } else {
       throw "Error: SpeechRecognitionParameters not initialized correctly";
     }
@@ -130,8 +141,12 @@ class AzureSpeechRecognition {
 
   static continuousRecording() {
     if (_subKey != null && _region != null) {
-      _channel.invokeMethod('continuousStream',
-          {'language': _lang, 'subscriptionKey': _subKey, 'region': _region});
+      _channel.invokeMethod('continuousStream', {
+        'language': _lang,
+        'subscriptionKey': _subKey,
+        'region': _region,
+        'recording': _recording,
+      });
     } else {
       throw "Error: SpeechRecognitionParameters not initialized correctly";
     }
@@ -139,8 +154,12 @@ class AzureSpeechRecognition {
 
   static dictationMode() {
     if (_subKey != null && _region != null) {
-      _channel.invokeMethod('dictationMode',
-          {'language': _lang, 'subscriptionKey': _subKey, 'region': _region});
+      _channel.invokeMethod('dictationMode', {
+        'language': _lang,
+        'subscriptionKey': _subKey,
+        'region': _region,
+        'recording': _recording,
+      });
     } else {
       throw "Error: SpeechRecognitionParameters not initialized correctly";
     }
@@ -157,7 +176,8 @@ class AzureSpeechRecognition {
         'language': _lang,
         'subscriptionKey': _languageUnderstandingSubscriptionKey,
         'appId': _languageUnderstandingAppId,
-        'region': _languageUnderstandingServiceRegion
+        'region': _languageUnderstandingServiceRegion,
+        'recording': _recording,
       });
     } else {
       throw "Error: LanguageUnderstading not initialized correctly";
@@ -174,7 +194,8 @@ class AzureSpeechRecognition {
         'language': _lang,
         'subscriptionKey': _subKey,
         'region': _region,
-        'kwsModel': kwsModelName
+        'kwsModel': kwsModelName,
+        'recording': _recording,
       });
     } else {
       throw "Error: SpeechRecognitionParameters not initialized correctly";
