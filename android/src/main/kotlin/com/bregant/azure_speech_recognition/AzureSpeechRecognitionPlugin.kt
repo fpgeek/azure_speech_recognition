@@ -50,10 +50,8 @@ public class AzureSpeechRecognitionPlugin() : FlutterPlugin, Activity(), MethodC
             microphoneStream = null;
         }
 
-        Log.i("AzureSpeechRecognitionPlugin", "createMicrophoneStream");
         try {
-            val recordFilePath = "" + flutterPluginBinding!!.applicationContext.filesDir.absolutePath + "/" + randomID() + ".wav";
-            Log.i("AzureSpeechRecognitionPlugin", "recordFilePath: $recordFilePath");
+            val recordFilePath = "" + flutterPluginBinding!!.applicationContext.cacheDir.absolutePath + "/" + randomID() + ".wav";
             microphoneStream = MicrophoneStream(recording = recording, recordFilePath=recordFilePath);
         } catch (e: Exception) {
             Log.e("AzureSpeechRecognitionPlugin", e.message);
@@ -304,11 +302,12 @@ public class AzureSpeechRecognitionPlugin() : FlutterPlugin, Activity(), MethodC
                 setOnTaskCompletedListener(_task1, { result ->
                     Log.i(logTag, "Continuous recognition stopped.");
                     continuousListeningStarted = false;
-                    var filePath = getRecordFilePath();
-                    if (filePath == null) {
-                        filePath = "";
+                    var filePath = "";
+                    if (recording) {
+                        micStream.saveRecordFile();
+                        filePath = micStream.recordFilePath!!;
                     }
-                    micStream.saveRecordFile();
+
                     invokeMethod("speech.onRecognitionStopped", filePath);
                     reco.close();
 
